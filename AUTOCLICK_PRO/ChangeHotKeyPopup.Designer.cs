@@ -49,6 +49,7 @@
             this.Controls.Add(this.label1);
             this.Name = "ChangeHotKeyPopup";
             this.Text = "ChangeHotKeyPopup";
+            this.Load += new System.EventHandler(this.ChangeHotKeyPopup_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 

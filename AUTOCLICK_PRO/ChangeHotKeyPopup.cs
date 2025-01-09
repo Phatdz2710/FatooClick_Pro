@@ -31,5 +31,10 @@ namespace AUTOCLICK_PRO
             GetKey = (HOTKEY)vk;
             this.Close();
         }
+
+        private void ChangeHotKeyPopup_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

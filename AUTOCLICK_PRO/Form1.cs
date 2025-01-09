@@ -27,6 +27,7 @@ namespace AUTOCLICK_PRO
         public static extern int GetWindowTextA(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
 
 
+
         MouseAutoClickMode mouseAutoClickMode = new MouseAutoClickMode();
         KeyboardAutoPressMode keyboardAutoPressMode = new KeyboardAutoPressMode();
         MultiAutoClickMode multiAutoClickMode = new MultiAutoClickMode();
@@ -53,6 +54,7 @@ namespace AUTOCLICK_PRO
         private Dictionary<HOTKEY, uint> HotKeyRegisted = new Dictionary<HOTKEY, uint>();
 
         bool isHiding = false;
+        bool isRunRecord = false;
 
         IniFile iniReader;
         ChangeHotKeyPopup popup;
@@ -128,8 +130,10 @@ namespace AUTOCLICK_PRO
 
         private void Popup_Closed(object sender, EventArgs e)
         {
-            Pointer.ChangeHotKey(popup.GetKey);
-            btnPointer.Text = Enum.GetName(popup.GetKey.GetType(), popup.GetKey);
+            if (Pointer.ChangeHotKey(popup.GetKey))
+            {
+                btnPointer.Text = Enum.GetName(popup.GetKey.GetType(), popup.GetKey);
+            }
         }
 
         protected override void WndProc(ref Message m)
@@ -513,6 +517,78 @@ namespace AUTOCLICK_PRO
 
                     this.multiAutoClickMode.AddAction(newAction);
                 }
+            }
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            if (isRunRecord)
+            {
+                isRunRecord = false;
+                button3.Text = "Record (F12)";
+                MakeNewDataGridView();
+                multiAutoClickMode.StopRecord();
+            }
+            else
+            {
+                isRunRecord = true;
+                button3.Text = "Stop (F12)";
+                multiAutoClickMode.ClearActions();
+                dgvScript.Rows.Clear();
+
+                multiAutoClickMode.RunRecord();
+            }
+            
+        }
+
+        private void MakeNewDataGridView()
+        {
+            var listDeviceActions = multiAutoClickMode.GetListActions();
+
+            foreach (var action in listDeviceActions)
+            {
+                dgvScript.Rows.Add(
+                    action.IsMouse ? "Mouse" : "Keyboard",
+                    action.WaitTime,
+                    action.MouseMode,
+                    action.keyboardMode,
+                    HotKeyConvert.HotkeyToString(action.Key),
+                    action.Pos.X.ToString() + " , " + action.Pos.Y.ToString()
+                );
+            }
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "Script file (*.srp)|*.srp"; // Lọc file theo định dạng
+
+            // Hiển thị hộp thoại lưu file
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                string filePath = saveFileDialog.FileName;
+                string content = "";
+
+                foreach (var action in multiAutoClickMode.GetListActions())
+                {
+                    string device = action.IsMouse ? "1" : "0";
+                    string waitTime = action.WaitTime.ToString();
+                    string mouseMode = ((int)action.MouseMode).ToString();
+                    string keyboardMode = ((int)action.keyboardMode).ToString();
+                    string key = action.Key.ToString();
+                    string pos = action.Pos.X.ToString() + " " + action.Pos.Y.ToString();
+
+                    content += device + " " + waitTime + " " + mouseMode + " " + keyboardMode + " " + key + " " + pos + "\n";
+                }
+
+                // Ghi nội dung vào file
+                File.WriteAllText(filePath, content);
+
+                Console.WriteLine("File created and content written successfully at: " + filePath);
+            }
+            else
+            {
+                Console.WriteLine("No file selected.");
             }
         }
     }

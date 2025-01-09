@@ -109,6 +109,7 @@
             this.button4.TabIndex = 95;
             this.button4.Text = "Save";
             this.button4.UseVisualStyleBackColor = true;
+            this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
             // button3
             // 
@@ -118,6 +119,7 @@
             this.button3.TabIndex = 94;
             this.button3.Text = "Record (F12)";
             this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
             // cbxFocusHandleMulti
             // 
